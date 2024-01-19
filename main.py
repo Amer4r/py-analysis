@@ -10,8 +10,8 @@ budget_csv = os.path.join('Resources/budget_data.csv')
 # Election data file
 election_csv = os.path.join('Resources/election_data.csv')
 
-# initializing a set to store months
-monthly = set()
+#PyBank Analysis
+
 # initializing a variable to store the total net value
 net_total = 0
 # Initializing an emty list to store the changes over the entire period
@@ -21,10 +21,10 @@ previous_change = None
 previous = 0
 max_increase = 0
 max_decrease = 0
+total_Month = 0
 # assigning the month of the greatest increase and decrease
 max_date = None
 min_date = None
-
 
 # Open the budget data CSV using the UTF-8 encoding
 with open(budget_csv, encoding='UTF-8') as csvbudget:
@@ -33,18 +33,16 @@ with open(budget_csv, encoding='UTF-8') as csvbudget:
     # Skip the header row
     budget_header = next(budget_reader)
 
-    # Loop through the first row (Date) to calculate the umber of months
+    # Loop through the first row (Date) to calculate the number of months
     for rowBudget in budget_reader:
        
         # assign the first row to variables
         months = rowBudget[0]
         profit_loss = int(rowBudget[1])
 
-         # 1. Total Months
-        # adding months into the monthly set
-        monthly.add(months)
-        # creating a variable that store the total number of the months by using (len)
-        total_Month = len(monthly)
+        # 1. Total Months
+        # increament the count for the rows to get the total number of months
+        total_Month += 1
 
         # 2. Net Total 
         # creating a variable to hold the profit_loss values and add them to get the total value
@@ -85,13 +83,13 @@ with open(budget_csv, encoding='UTF-8') as csvbudget:
 avg = sum(changes) / len(changes)
 
 # printing the result into the terminal
-print("Financial Analysis")
-print('----------------------------')
-print(f'Total Months: {total_Month}')
-print(f'Total: ${net_total}')
-print(f'Average Change: ${avg:.2f}')
-print(f'Greatest Increase in Profits: {max_date} (${max_increase})')
-print(f'Greatest Decrease in Profits: {min_date} (${max_decrease})')
+print("\nFinancial Analysis\n")
+print('----------------------------\n')
+print(f'Total Months: {total_Month}\n')
+print(f'Total: ${net_total}\n')
+print(f'Average Change: ${avg:.2f}\n')
+print(f'Greatest Increase in Profits: {max_date} (${max_increase})\n')
+print(f'Greatest Decrease in Profits: {min_date} (${max_decrease})\n')
     
 
 # Set a variable for Budget Data output file
@@ -105,4 +103,94 @@ with open(budget_output, "w") as budgetDataFile:
     budgetDataFile.write(f'Total: ${net_total}\n')
     budgetDataFile.write(f'Average Change: {avg:.2f}\n')
     budgetDataFile.write(f'Greatest Increase in Profits: {max_date} (${max_increase})\n')
-    budgetDataFile.write(f'Greatest Derease in Profits: {min_date} (${max_decrease})\n')
+    budgetDataFile.write(f'Greatest Derease in Profits: {min_date} (${max_decrease})')
+
+# ------------------------------------------------------------------------------------------- #
+    
+#PyPoll Analysis
+
+# Open the election data CSV using the UTF-8 encoding
+with open(election_csv, encoding='UTF-8') as csvelection:
+    election_reader = csv.reader(csvelection, delimiter=',')
+
+    # set the variables to values
+    total_vote = 0
+    candidate_name = None
+    win_votes = 0
+    winner = ""
+
+    # Skip the first row
+    election_header = next(election_reader)
+    
+    # set a dictionary and list to empty
+    canDic = {}
+    canList = []
+
+    # Loop through the rows
+    for rowElection in election_reader:
+
+        # 1. total votes 
+        # add 1 for every loop for every row to count the number of votes
+        total_vote +=1
+
+        # set the candidate to variable
+        candidate = rowElection[2]
+
+        # 2. List of candidates and total number of votes for each
+        # assign the first value to candidate_name
+        if candidate is not None:
+            candidate_name = candidate
+            # check if candidate name is not in the dictionary
+            if candidate_name not in canDic:
+                # if so, we add the name to the list
+                canDic[candidate_name] = 1
+                # if yes, we add one to the name to count the votes for each
+            else: 
+                canDic[candidate_name] += 1
+
+
+        candidate_name = candidate # update the candidate name for the new row
+
+# Set a variable for election Data output file
+election_output = os.path.join('analysis/election_data_analysis.txt')
+# Open the output file
+with open(election_output, "w") as electionDataFile:
+
+    # printing the result into the terminal
+    print("\nElection Results\n")
+    print('----------------------------\n')
+    print(f'Total Votes: {total_vote}\n')
+    print('----------------------------\n')
+
+    # write into the text file
+    electionDataFile.write("\nElection Results\n")
+    electionDataFile.write('----------------------------\n')
+    electionDataFile.write(f'Total Votes: {total_vote}\n')
+    electionDataFile.write('----------------------------\n')
+
+    # Loop therough the dictionary to find the votes and vote percentage for each candidate 
+    for candidate_name, canVotes in canDic.items():
+
+        # 3. Percentage of votes for each candidate
+        # Calculate the percentage for the candidates
+        perc = (canVotes / total_vote) * 100
+        
+        # 4. The winner of the election 
+        # Condidtion to check the winner candidate
+        if canVotes > win_votes:
+            winner = candidate_name
+        win_votes = canVotes # Updatine winVotes for the next row
+
+        # Printing the resuls into the termibal and write into the text file
+        print(f'{candidate_name}: {perc:.3f}% {(canVotes)}\n')
+        electionDataFile.write(f'{candidate_name}: {perc:.3}% {canVotes}\n')
+
+    print('----------------------------\n')    
+    print(f'Winner: {winner}\n')   
+    print('----------------------------')  
+    electionDataFile.write('----------------------------\n')
+    electionDataFile.write(f'Winner: {winner}')
+
+    
+    
+    
